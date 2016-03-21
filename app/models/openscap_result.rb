@@ -18,35 +18,44 @@ class OpenscapResult < ApplicationRecord
   def raw=(value)
     self.binary_blob = BinaryBlob.new(:name => 'openscap_compliance_arf', :data_type => 'XML')
     binary_blob.binary = value
-    with_openscap_arf(binary_blob.binary) do |arf|
-      create_results(arf)
-    end
+    create_results(binary_blob.binary)
   end
 
   private
 
-  def create_results(arf)
-    rule_results, benchmark_items = parse_arf(arf)
-
-    rule_results.each do |openscap_id, result|
-      openscap_rule_results << OpenscapRuleResult.new(
-        :name            => ascii8bit_to_utf8(openscap_id),
-        :result          => ascii8bit_to_utf8(result.result),
-        :openscap_result => self,
-        :severity        => ascii8bit_to_utf8(benchmark_items[openscap_id].severity)
-      )
+  def create_results(raw)
+    with_openscap_detailed_results(raw) do |rule_results, benchmark_items|
+      rule_results.each do |openscap_id, result|
+        openscap_rule_results << OpenscapRuleResult.new(
+          :name            => ascii8bit_to_utf8(openscap_id),
+          :result          => ascii8bit_to_utf8(result.result),
+          :openscap_result => self,
+          :severity        => ascii8bit_to_utf8(benchmark_items[openscap_id].severity)
+        )
+      end
     end
-  end
-
-  def parse_arf(arf)
-    rule_results = arf.test_result.rr
-    report_request = arf.report_request
-    bench_source = report_request.select_checklist!
-    [rule_results, OpenSCAP::Xccdf::Benchmark.new(bench_source).items]
   end
 
   def ascii8bit_to_utf8(string)
     string.to_s.encode('utf-8', :invalid => :replace, :undef => :replace, :replace => '_')
+  end
+
+  def with_openscap_detailed_results(raw)
+    raise 'no block given' unless block_given?
+    with_openscap_arf(raw) do |arf|
+      begin
+        test_result = arf.test_result
+        source_datastream = arf.report_request
+        bench_source = report_request.select_checklist!
+        benchmark = OpenSCAP::Xccdf::Benchmark.new(bench_source)
+        ret = yield(test_result.rr, benchmark.items)
+      ensure
+        benchmark.try(:destroy)
+        source_datastream.try(:destroy)
+        test_result.try(:destroy)
+      end
+      ret
+    end
   end
 
   def with_openscap_arf(raw)
