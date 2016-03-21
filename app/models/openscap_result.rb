@@ -58,8 +58,8 @@ class OpenscapResult < ApplicationRecord
       arf = OpenSCAP::DS::Arf.new(:content => raw, :length => raw.length, :path => 'incoming_arf.xml')
       ret = yield arf
     ensure
-      OpenSCAP.oscap_cleanup
       arf.try(:destroy)
+      OpenSCAP.oscap_cleanup
     end
     ret
   end
