@@ -294,6 +294,7 @@ class ManageIQ::Providers::Kubernetes::ContainerManager::Scanning::Job < Job
             :command         => [
               "/usr/bin/image-inspector",
               "--image=#{options[:image_full_name]}",
+              "--oscap",
               "--serve=0.0.0.0:#{options[:pod_port]}"
             ],
             :ports           => [{:containerPort => options[:pod_port]}],
@@ -317,6 +318,6 @@ class ManageIQ::Providers::Kubernetes::ContainerManager::Scanning::Job < Job
   end
 
   def inspector_image
-    'docker.io/openshift/image-inspector:v1.0.z'
+    'docker.io/efreiber/image-inspector:latest'
   end
 end
