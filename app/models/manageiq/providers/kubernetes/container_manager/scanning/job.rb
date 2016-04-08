@@ -138,8 +138,10 @@ class ManageIQ::Providers::Kubernetes::ContainerManager::Scanning::Job < Job
     _log.info "collecting compliance data for #{options[:docker_image_id]}"
     openscap_result = image.openscap_result || OpenscapResult.new(:container_image => image)
     openscap_result.attach_raw_result(image_inspector_client.fetch_openscap)
-
     openscap_result.save
+  rescue StandardError =>  bang
+    _log.error "An error occurred while collecting compliance data for #{options[:docker_image_id]} #{bang.inspect}"
+    _log.log_backtrace(bang)
   end
 
   def synchronize
