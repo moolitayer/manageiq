@@ -1,4 +1,56 @@
 describe Condition do
+  describe ".seed" do
+    it "should contain conditions" do
+      Condition.seed
+      specifications = YAML.load_file(File.join(ApplicationRecord::FIXTURE_DIR, "conditions.yml"))
+      specifications_by_name = specifications.index_by { |h| h[:name] }
+
+      count = 0
+      Condition.all.each do |condition|
+        spec = specifications_by_name[condition.name]
+        expect(condition).to have_attributes(spec.except(:expression, :created_on, :updated_on, :guid))
+
+        if condition.expression.nil?
+          expect(spec[:expression]).to be_nil
+        else
+          expect(condition.expression.exp).to eq(spec[:expression].exp)
+        end
+        count += 1
+      end
+      expect(count).to eq(specifications.size)
+    end
+
+    it "should not update attributes not provided" do
+      expect(Condition).to receive(:load_fixtures).and_return(
+        [
+          {
+            :name        => 'old',
+            :description => 'some old thing',
+            :expression  => MiqExpression.new("=" => {}),
+            :read_only   => true,
+            :modifier    => 'allow',
+            :towhat      => 'ContainerImage'
+          }
+        ]
+      )
+      Condition.seed
+      expect(Condition).to receive(:load_fixtures).and_return(
+        [
+          {
+            :name        => 'old',
+            :description => 'some old thing',
+            :expression  => MiqExpression.new("=" => {}),
+            :read_only   => true,
+            :towhat      => 'ContainerImage'
+          }
+        ]
+      )
+      Condition.seed
+
+      expect(Condition.first.modifier).to eq('allow')
+    end
+  end
+
   describe ".subst" do
     context "expression with <find>" do
       before do

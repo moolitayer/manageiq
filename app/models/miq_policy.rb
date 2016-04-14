@@ -358,6 +358,7 @@ class MiqPolicy < ApplicationRecord
   end
 
   def self.seed
+    seed_fixtures
     all.each do |p|
       attrs = {}
       attrs[:towhat] = "Vm"      if p.towhat.nil?
@@ -367,6 +368,40 @@ class MiqPolicy < ApplicationRecord
       _log.info("Updating [#{p.name}]")
       p.update_attributes(attrs)
     end
+  end
+
+  def self.seed_fixtures
+    fixture_file = File.join(FIXTURE_DIR, "miq_policies.yml")
+    fixtures = File.exist?(fixture_file) ? YAML.load_file(fixture_file) : []
+
+    fixtures.each do |policy_fixture|
+      rec = seed_policy(policy_fixture.except(:conditions))
+      seed_link_to_conditions(rec, policy_fixture[:conditions])
+    end
+  end
+
+  def self.seed_policy(policy_fixture)
+    rec = MiqPolicy.find_by_name(policy_fixture[:name])
+    if rec.nil?
+      _log.info("Creating MiqPolicy: [#{policy_fixture[:name]}] ")
+      rec = MiqPolicy.create!(policy_fixture)
+    else
+      rec.attributes = policy_fixture
+      if rec.changed?
+        _log.info("Updating MiqPolicy [#{policy_fixture[:name]}] ")
+        rec.save
+      end
+    end
+    rec
+  end
+
+  def self.seed_link_to_conditions(miq_policy, condition_names)
+    conditions = []
+    condition_names.each do |condition_name|
+      condition = Condition.find_by_name(condition_name)
+      conditions << condition unless condition.nil?
+    end
+    miq_policy.conditions = conditions
   end
 
   def self.get_policies_for_target(target, mode, event, inputs = {})

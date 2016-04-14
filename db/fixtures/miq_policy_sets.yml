@@ -1,0 +1,7 @@
+---
+- :name: container providers default
+  :description: container providers default
+  :read_only: true
+  :miq_policies:
+    - analyse incoming container images
+    - handle container images with high severity openscap results

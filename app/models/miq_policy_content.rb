@@ -3,6 +3,51 @@ class MiqPolicyContent < ApplicationRecord
   belongs_to :miq_event_definition
   belongs_to :miq_action
 
+  def self.seed
+    fixture_file = File.join(FIXTURE_DIR, "miq_policy_contents.yml")
+    content_fixtures = File.exist?(fixture_file) ? YAML.load_file(fixture_file) : []
+
+    content_fixtures.each do |content_fixture|
+      content_fixture.merge!(find_associations(content_fixture))
+      rec = find_by_pkey(content_fixture)
+      if rec.nil?
+        create_seed_record(content_fixture[:miq_policy].try(:name), content_fixture)
+      else
+        update_seed_record(rec, content_fixture[:miq_policy].try(:name), content_fixture)
+      end
+    end
+  end
+
+  def self.find_associations(h)
+    {
+      :miq_policy           => MiqPolicy.find_by_name(h[:miq_policy]),
+      :miq_action           => MiqAction.find_by_name(h[:miq_action]),
+      :miq_event_definition => MiqEventDefinition.find_by_name(h[:miq_event_definition])
+    }
+  end
+
+  def self.create_seed_record(policy_name, content)
+    _log.info("Creating #{name}: [#{policy_name}, #{content[:success_sequence]}, #{content[:failure_sequence]}]")
+    MiqPolicyContent.create!(content)
+  end
+
+  def self.update_seed_record(rec, policy_name, content)
+    rec.attributes = content
+    if rec.changed?
+      _log.info("Updating #{name}: [#{policy_name}, #{rec.id}] ")
+      rec.save
+    end
+  end
+
+  def self.find_by_pkey(content_fixture)
+    relation = MiqPolicyContent.where(
+      :miq_policy       => content_fixture[:miq_policy],
+      :success_sequence => content_fixture[:success_sequence],
+      :failure_sequence => content_fixture[:failure_sequence]
+    )
+    relation.empty? ? nil : relation.first
+  end
+
   def get_action(qualifier = nil)
     action = miq_action
 

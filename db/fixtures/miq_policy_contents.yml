@@ -1,0 +1,17 @@
+---
+- :miq_policy: analyse incoming container images
+  :miq_action: container_image_analyze
+  :miq_event_definition: containerimage_created
+  :qualifier: failure
+  :success_sequence:
+  :failure_sequence: 1
+  :success_synchronous:
+  :failure_synchronous:
+- :miq_policy: handle container images with high severity openscap results
+  :miq_action: compliance_failed
+  :miq_event_definition: containerimage_scan_complete
+  :qualifier: failure
+  :success_sequence:
+  :failure_sequence: 2
+  :success_synchronous:
+  :failure_synchronous:

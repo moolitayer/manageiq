@@ -81,6 +81,33 @@ describe MiqPolicy do
         expect(miq_policy.mode).to eq("compliance")
       end
     end
+
+    describe "loads fixtures" do
+      it "should contain miq policies" do
+        Condition.seed
+        MiqPolicy.seed
+        specifications = YAML.load_file(File.join(ApplicationRecord::FIXTURE_DIR, "miq_policies.yml"))
+        specifications_by_name = specifications.index_by { |h| h[:name] }
+
+        count = 0
+        MiqPolicy.all.each do |policy|
+          spec = specifications_by_name[policy.name]
+          conditions = policy.conditions
+          expect(policy).to have_attributes(spec.except(:expression, :conditions, :guid))
+
+          if policy.expression.nil?
+            expect(spec[:expression]).to be_nil
+          else
+            expect(policy.expression.exp).to eq(spec[:expression].exp)
+          end
+          conditions.each_with_index do |condition, index|
+            expect(condition.name).to eq(spec[:conditions][index])
+          end
+          count += 1
+        end
+        expect(count).to eq(specifications.size)
+      end
+    end
   end
 
   context "instance methods" do

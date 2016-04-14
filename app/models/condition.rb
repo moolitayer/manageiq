@@ -33,6 +33,27 @@ class Condition < ApplicationRecord
     pluck(:expression)
   end
 
+  def self.seed
+    load_fixtures.each do |condition_fixture|
+      rec = Condition.find_by_name(condition_fixture[:name])
+      if rec.nil?
+        _log.info("Creating Condition: [#{condition_fixture[:name]}] ")
+        Condition.create!(condition_fixture)
+      else
+        rec.attributes = condition_fixture
+        if rec.changed?
+          _log.info("Updating Condition [#{condition_fixture[:name]}] ")
+          rec.save
+        end
+      end
+    end
+  end
+
+  def self.load_fixtures
+    fixture_file = File.join(FIXTURE_DIR, "conditions.yml")
+    File.exist?(fixture_file) ? YAML.load_file(fixture_file) : []
+  end
+
   def self.evaluate(cond, rec, inputs = {}, attr = :expression)
     expression = cond.send(attr)
     name = cond.respond_to?(:description) ? cond.description : cond.respond_to?(:name) ? cond.name : nil

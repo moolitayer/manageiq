@@ -116,11 +116,44 @@ class MiqPolicySet < ApplicationRecord
   end
 
   def self.seed
+    seed_fixtures
     all.each do |ps|
       if ps.mode.nil?
         _log.info("Updating [#{ps.name}]")
         ps.update_attribute(:mode, "control")
       end
+    end
+  end
+
+  def self.seed_fixtures
+    fixture_file = File.join(FIXTURE_DIR, "miq_policy_sets.yml")
+    fixtures = File.exist?(fixture_file) ? YAML.load_file(fixture_file) : []
+
+    fixtures.each do |policy_set_fixture|
+      rec = seed_policy_set(policy_set_fixture.except(:miq_policies))
+      seed_link_to_policies(rec, policy_set_fixture[:miq_policies])
+    end
+  end
+
+  def self.seed_policy_set(policy_set_fixture)
+    rec = MiqPolicySet.find_by_name(policy_set_fixture[:name])
+    if rec.nil?
+      _log.info("Creating MiqPolicySet: [#{policy_set_fixture[:name]}] ")
+      rec = MiqPolicySet.create!(policy_set_fixture)
+    else
+      rec.attributes = policy_set_fixture
+      if rec.changed?
+        _log.info("Updating MiqPolicySet [#{policy_set_fixture[:name]}] ")
+        rec.save
+      end
+    end
+    rec
+  end
+
+  def self.seed_link_to_policies(rec, policy_names)
+    policy_names.each do |policy_name|
+      policy = MiqPolicy.find_by_name(policy_name)
+      rec.add_member(policy) unless policy.nil?
     end
   end
 end # class MiqPolicySet

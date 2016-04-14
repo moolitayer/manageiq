@@ -20,6 +20,12 @@ class EvmDatabase
   ORDERED_CLASSES = %w(
     RssFeed
     MiqWidget
+    MiqAction
+    MiqEventDefinition
+    Condition
+    MiqPolicy
+    MiqPolicyContent
+    MiqPolicySet
   )
 
   RAILS_ENGINE_MODEL_CLASS_NAMES = %w(MiqAeDatastore)
