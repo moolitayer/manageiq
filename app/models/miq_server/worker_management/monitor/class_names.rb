@@ -47,6 +47,7 @@ module MiqServer::WorkerManagement::Monitor::ClassNames
     ManageIQ::Providers::Google::CloudManager::EventCatcher
     ManageIQ::Providers::Kubernetes::ContainerManager::EventCatcher
     ManageIQ::Providers::Openshift::ContainerManager::EventCatcher
+    ManageIQ::Providers::Openshift::ContainerManager::EventCatcherHawkular
     ManageIQ::Providers::Atomic::ContainerManager::EventCatcher
     ManageIQ::Providers::OpenshiftEnterprise::ContainerManager::EventCatcher
     ManageIQ::Providers::AtomicEnterprise::ContainerManager::EventCatcher
@@ -134,6 +135,7 @@ module MiqServer::WorkerManagement::Monitor::ClassNames
     ManageIQ::Providers::Google::CloudManager::EventCatcher
     ManageIQ::Providers::Kubernetes::ContainerManager::EventCatcher
     ManageIQ::Providers::Openshift::ContainerManager::EventCatcher
+    ManageIQ::Providers::Openshift::ContainerManager::EventCatcherHawkular
     ManageIQ::Providers::Atomic::ContainerManager::EventCatcher
     ManageIQ::Providers::OpenshiftEnterprise::ContainerManager::EventCatcher
     ManageIQ::Providers::AtomicEnterprise::ContainerManager::EventCatcher
