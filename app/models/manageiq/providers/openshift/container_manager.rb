@@ -27,7 +27,7 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Co
   def alerts_client
     #byebug_term
     connection = ManageIQ::Providers::Hawkular::MiddlewareManager.raw_connect(
-      'mtayer-centos7-6.eng.lab.tlv.redhat.com', 8080, 'jdoe', 'password')
+      'mtayer-centos7-7.eng.lab.tlv.redhat.com', 8080, 'jdoe', 'password')
     connection.alerts
   end
 
