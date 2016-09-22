@@ -186,7 +186,6 @@ class ManageIQ::Providers::Kubernetes::ContainerManager::Scanning::Job < Job
         _log.info("pod #{pod_full_name} not found, skipping delete")
         return
       end
-      # TODO: handle the cleanup at a later time
       raise
     end
 
