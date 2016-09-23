@@ -50,13 +50,14 @@ class ManageIQ::Providers::Kubernetes::ContainerManager::Scanning::Job < Job
     namespace = ems_configs.fetch_path(:ems_kubernetes, :miq_namespace)
     namespace = INSPECTOR_NAMESPACE_FALLBACK if namespace.blank?
 
-    update!(:options => options.merge(
+    update_options(
       :docker_image_id => image.docker_id,
       :image_full_name => image.full_name,
       :pod_name        => "manageiq-img-scan-#{guid[0..4]}",
       :pod_port        => INSPECTOR_PORT,
-      :pod_namespace   => namespace
-    ))
+      :pod_namespace   => namespace,
+      :attempt_number  => 0
+    )
 
     _log.info("Getting inspector-admin secret for pod [#{pod_full_name}]")
     begin
@@ -164,6 +165,8 @@ class ManageIQ::Providers::Kubernetes::ContainerManager::Scanning::Job < Job
 
   def cleanup(*args)
     image = target_entity
+    operation = self.state
+
     if image
       # TODO: check job success / failure
       MiqEvent.raise_evm_job_event(image, :type => "scan", :suffix => "complete")
@@ -192,12 +195,14 @@ class ManageIQ::Providers::Kubernetes::ContainerManager::Scanning::Job < Job
       begin
         client.delete_pod(options[:pod_name], options[:pod_namespace])
       rescue SocketError, KubeException => e
-        _log.info("pod #{pod_full_name} deletion failed: #{e}")
-        # TODO: handle the cleanup at a later time
+        _log.warn("pod [#{pod_full_name}] deletion attempt [#{options[:attempt_number] + 1}] failed: #{e}")
+        update_options(:attempt_number  => options[:attempt_number] + 1)
+        operation='retrying' if options[:attempt_number] < 5
       end
     end
   ensure
-    case self.state
+    case operation
+    when 'retrying' then queue_signal(*args)
     when 'aborting' then process_abort(*args)
     when 'canceling' then process_cancel(*args)
     else queue_signal(:finish, 'image analysis completed successfully', 'ok')
@@ -231,6 +236,11 @@ class ManageIQ::Providers::Kubernetes::ContainerManager::Scanning::Job < Job
   end
 
   private
+
+  def update_options(ops)
+    update!(:options => options.merge(ops))
+  end
+
 
   def ext_management_system
     @ext_management_system ||= ExtManagementSystem.find(options[:ems_id])
