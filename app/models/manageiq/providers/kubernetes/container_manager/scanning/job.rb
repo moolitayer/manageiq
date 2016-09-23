@@ -311,7 +311,7 @@ class ManageIQ::Providers::Kubernetes::ContainerManager::Scanning::Job < Job
       raise e unless e.error_code == ERRCODE_NOTFOUND
       _log.warn("Service Account #{IMAGE_INSPECTOR_SA} does not exist.")
     end
-    return nil
+    nil
   end
 
   def pod_definition(inspector_admin_secret_name)
