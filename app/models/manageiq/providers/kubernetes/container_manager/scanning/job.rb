@@ -141,15 +141,6 @@ class ManageIQ::Providers::Kubernetes::ContainerManager::Scanning::Job < Job
                         "args"   => [YAML.dump(scan_args)])
   end
 
-  def collect_compliance_data(image)
-    _log.info "collecting compliance data for #{options[:docker_image_id]}"
-    openscap_result = image.openscap_result || OpenscapResult.new(:container_image => image)
-    openscap_result.attach_raw_result(image_inspector_client.fetch_oscap_arf)
-    openscap_result.save
-  rescue ImageInspectorClient::InspectorClientException => e
-    _log.error("collecting compliance data for #{options[:docker_image_id]} with error: #{e}")
-  end
-
   def synchronize
     image = target_entity
     return queue_signal(:abort_job, "no image found", "error") unless image
@@ -389,6 +380,15 @@ class ManageIQ::Providers::Kubernetes::ContainerManager::Scanning::Job < Job
     pod_def[:spec][:volumes].append(
       :name   => "inspector-admin-secret",
       :secret => {:secretName => inspector_admin_secret_name})
+  end
+
+  def collect_compliance_data(image)
+    _log.info "collecting compliance data for #{options[:docker_image_id]}"
+    openscap_result = image.openscap_result || OpenscapResult.new(:container_image => image)
+    openscap_result.attach_raw_result(image_inspector_client.fetch_oscap_arf)
+    openscap_result.save
+  rescue ImageInspectorClient::InspectorClientException => e
+    _log.error("collecting compliance data for #{options[:docker_image_id]} with error: #{e}")
   end
 
   def inspector_image
