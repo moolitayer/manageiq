@@ -91,8 +91,13 @@ class ContainerLabelTagMapping < ApplicationRecord
       entry_name = Classification.sanitize_name(value)
       description = value
     end
-    entry = category.add_entry(:name => entry_name, :description => description)
-    entry.save!
+    begin
+      entry = category.add_entry(:name => entry_name, :description => description)
+      entry.save!
+    rescue => ex
+      _log.info("186XXXX186 creating tag: #{tag.inspect} value: #{value} category_tag: #{category_tag.inspect}")
+      raise
+    end
     entry.tag
   end
   private_class_method :create_tag

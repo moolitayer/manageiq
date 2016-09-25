@@ -420,8 +420,14 @@ module EmsRefresh::SaveInventoryContainer
                      :name          => label_hash[:name],
                      :value         => label_hash[:value])
     end
-    current_tags = labels.collect_concat { |label| ContainerLabelTagMapping.tags_for_label(label) }
-    mappable_tags = ContainerLabelTagMapping.mappable_tags
+    begin
+      label = nil
+      current_tags = labels.collect_concat { |label| ContainerLabelTagMapping.tags_for_label(label) }
+      mappable_tags = ContainerLabelTagMapping.mappable_tags
+    rescue => ex
+      _log.info("186XXXX186 entity: #{entity.inspect} hashes: #{hashes} label: #{label}")
+      raise
+    end
 
     entity.tags = entity.tags - mappable_tags + current_tags
   end
