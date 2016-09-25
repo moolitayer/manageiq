@@ -2888,7 +2888,7 @@ Vmdb::Application.routes.draw do
 
   controller_routes.each do |controller_name, controller_actions|
     # Default route with no action to controller's index action
-    unless [:ems_cloud, :ems_infra, :ems_container, :ems_middleware].include?(controller_name)
+    unless [:ems_cloud, :ems_infra, :ems_container, :ems_middleware, :ems_datawarehouse].include?(controller_name)
       match controller_name.to_s, :controller => controller_name, :action => :index, :via => :get
     end
 
@@ -2922,6 +2922,7 @@ Vmdb::Application.routes.draw do
   resources :ems_infra, :as => :ems_infras
   resources :ems_container, :as => :ems_containers
   resources :ems_middleware, :as => :ems_middlewares
+  resources :ems_datawarehouse, :as => :ems_datawarehouses
 
   match "/auth/:provider/callback" => "sessions#create", :via => :get
 

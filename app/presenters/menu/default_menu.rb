@@ -154,6 +154,14 @@ module Menu
         ])
       end
 
+      def datawarehouse_menu_section
+        Menu::Section.new(:mdl, N_("Datawarehouse"), 'fa product-datawarehouse fa-2x', [
+          Menu::Item.new('ems_datawarehouse', N_('Providers'), 'ems_datawarehouse', {:feature => 'ems_datawarehouse_show_list'}, '/ems_datawarehouse'),
+          Menu::Item.new('datawarehouse_server', N_('Servers'), 'datawarehouse_server',
+                         {:feature => 'datawarehouse_server_show_list'}, '/datawarehouse_server')
+        ])
+      end
+
       def network_menu_section
         Menu::Section.new(:net, N_("Networks"), 'fa pficon-network fa-2x', [
           Menu::Item.new('ems_network',      N_('Providers'),       'ems_network',      {:feature => 'ems_network_show_list'},    '/ems_network'),

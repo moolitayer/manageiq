@@ -1164,7 +1164,7 @@ module ApplicationHelper
          middleware_server middleware_deployment middleware_datasource middleware_domain middleware_server_group
          middleware_messaging ems_network security_group floating_ip cloud_subnet network_router network_port
          cloud_network resource_pool retired service storage templates vm
-         configuration_job).include?(@layout) && !@in_a_form
+         configuration_job ems_datawarehouse datawarehouse_server).include?(@layout) && !@in_a_form
       "show_list"
     elsif @compare
       "compare_sections"
@@ -1178,6 +1178,7 @@ module ApplicationHelper
              container_build container_node container_service persistent_volume ems_cloud ems_container ems_cluster ems_infra
              ems_middleware middleware_server middleware_deployment middleware_datasource middleware_domain
              middleware_messaging middleware_server_group flavor
+             ems_datawarehouse datawarehouse_server
              ems_network security_group floating_ip cloud_subnet network_router network_port cloud_network
              load_balancer
              host miq_schedule miq_template policy ontap_file_share ontap_logical_disk

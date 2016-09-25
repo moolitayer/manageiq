@@ -1954,6 +1954,8 @@ class ApplicationController < ActionController::Base
     when "ems_middleware", "middleware_server", "middleware_deployment", "middleware_datasource",
          "middleware_topology", "middleware_domain", "middleware_server_group", "middleware_messaging"
       session[:tab_url][:mdl] = inbound_url if %w(show show_list).include?(action_name)
+    when "ems_datawarehouse", "datawarehouse_server"
+      session[:tab_url][:dwh] = inbound_url if %w(show show_list).include?(action_name)
     when "miq_request"
       session[:tab_url][:svc] = inbound_url if ["index"].include?(action_name) && request.parameters["typ"] == "vm"
       session[:tab_url][:compute] = session[:tab_url][:inf] = inbound_url if ["index"].include?(action_name) && request.parameters["typ"] == "host"
