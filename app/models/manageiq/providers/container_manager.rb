@@ -20,6 +20,7 @@ module ManageIQ::Providers
     has_many :container_build_pods, :foreign_key => :ems_id, :dependent => :destroy
     has_many :container_templates, :foreign_key => :ems_id, :dependent => :destroy
     has_one :container_deployment, :foreign_key => :deployed_ems_id, :inverse_of => :deployed_ems
+    has_many :miq_alert_statuses, :through => :container_nodes, :dependent => :destroy
     has_many :computer_systems, :through => :container_nodes
 
     virtual_column :port_show, :type => :string

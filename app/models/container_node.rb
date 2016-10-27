@@ -6,6 +6,7 @@ class ContainerNode < ApplicationRecord
   include TenantIdentityMixin
   include SupportsFeatureMixin
 
+  has_many :miq_alert_statuses, :as => :resource, :dependent => :destroy
   # :name, :uid, :creation_timestamp, :resource_version
   belongs_to :ext_management_system, :foreign_key => "ems_id"
   has_many   :container_groups
