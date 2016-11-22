@@ -15,6 +15,7 @@ module Api
     include Subcollections::Tags
     include Subcollections::CloudNetworks
     include Subcollections::CustomAttributes
+    include Subcollections::AlertStatuses
     include Subcollections::LoadBalancers
 
     def create_resource(type, _id, data = {})
