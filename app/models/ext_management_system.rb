@@ -71,9 +71,9 @@ class ExtManagementSystem < ApplicationRecord
   def hostname_uniqueness_valid?
     return unless hostname_required?
     return unless hostname.present? # Presence is checked elsewhere
+    # check uniqueness per provider type
 
-    existing_hostnames = Endpoint.where.not(:resource_id => id).pluck(:hostname).compact.map(&:downcase)
-
+    existing_hostnames = (self.class.all - [self]).map(&:hostname).compact.map(&:downcase)
     errors.add(:hostname, "has already been taken") if existing_hostnames.include?(hostname.downcase)
   end
 
