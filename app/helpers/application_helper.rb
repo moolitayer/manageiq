@@ -631,6 +631,7 @@ module ApplicationHelper
         %w(about
            alerts_overview
            alerts_list
+           alerts_most_recent
            chargeback
            cloud_topology
            container_dashboard
@@ -1215,6 +1216,7 @@ module ApplicationHelper
                         availability_zone
                         alerts_overview
                         alerts_list
+                        alerts_most_recent
                         cim_base_storage_extent
                         cloud_network
                         cloud_object_store_container

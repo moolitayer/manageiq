@@ -972,6 +972,13 @@ Vmdb::Application.routes.draw do
       )
     },
 
+    :alerts_most_recent      => {
+      :get => %w(
+        show
+        data
+      )
+    },
+
     :dashboard                => {
       :get  => %w(
         auth_error
