@@ -79,6 +79,18 @@ class ContainerNode < ApplicationRecord
     URI::HTTP.build(:host => ipaddress, :port => 9090)
   end
 
+  def tenant_identity
+    if ext_management_system
+      ext_management_system.tenant_identity
+    else
+      User.super_admin.tap { |u| u.current_group = Tenant.root_tenant.default_miq_group }
+    end
+  end
+
+  def evaluate_alert(_alert_id, _event)
+    true
+  end
+
   supports :common_logging do
     unless ext_management_system.respond_to?(:common_logging_route_name)
       unsupported_reason_add(:common_logging, _('This provider type doesn\'t support common_logging'))
