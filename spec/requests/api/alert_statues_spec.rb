@@ -41,25 +41,25 @@ describe "Alert Status API" do
     end
 
     it "get all alerts statuses by container provider" do
-      expected_result_container = {"environment" => "production",
-                                   "alerts"      =>
-                                                    [{"id"            => alert_status.id,
-                                                      "node_hostname" => container_node.name,
-                                                      "severity"      => miq_alert.severity,
-                                                      "description"   => miq_alert.description,
-                                                      "states"        => [
-                                                        {
-                                                          "id"                => miq_alert_status_state.id,
-                                                          "created_at"        => miq_alert_status_state.created_at.utc.iso8601,
-                                                          "updated_at"        => miq_alert_status_state.updated_at.utc.iso8601,
-                                                          "user_id"           => user.id,
-                                                          "assignee_id"       => user.id,
-                                                          "action"            => "comment",
-                                                          "comment"           => miq_alert_status_state.comment,
-                                                          "username"          => miq_alert_status_state.user.name,
-                                                          "assignee_username" => miq_alert_status_state.assignee.name
-                                                        }
-                                                      ]}]}
+      expected_result_container = {
+        "alert_statuses" => [{
+          "id"            => alert_status.id,
+          "node_hostname" => container_node.name,
+          "severity"      => miq_alert.severity,
+          "description"   => miq_alert.description,
+          "states"        => [{
+            "id"                => miq_alert_status_state.id,
+            "created_at"        => miq_alert_status_state.created_at.utc.iso8601,
+            "updated_at"        => miq_alert_status_state.updated_at.utc.iso8601,
+            "user_id"           => user.id,
+            "assignee_id"       => user.id,
+            "action"            => "comment",
+            "comment"           => miq_alert_status_state.comment,
+            "username"          => miq_alert_status_state.user.name,
+            "assignee_username" => miq_alert_status_state.assignee.name
+          }
+        ]}]
+      }
       container_provider.container_nodes << container_node
       container_node.miq_alert_statuses << alert_status
       run_get("#{providers_url}?expand=resources,alert_statuses")
@@ -68,25 +68,25 @@ describe "Alert Status API" do
     end
 
     it "get all alerts statuses by infra provider" do
-      expected_result_infra = {"environment" => "production",
-                               "alerts"      =>
-                                                [{"id"            => alert_status.id,
-                                                  "node_hostname" => vm.name,
-                                                  "severity"      => miq_alert.severity,
-                                                  "description"   => miq_alert.description,
-                                                  "states"        => [
-                                                    {
-                                                      "id"                => miq_alert_status_state.id,
-                                                      "created_at"        => miq_alert_status_state.created_at.utc.iso8601,
-                                                      "updated_at"        => miq_alert_status_state.updated_at.utc.iso8601,
-                                                      "user_id"           => user.id,
-                                                      "assignee_id"       => user.id,
-                                                      "action"            => "comment",
-                                                      "comment"           => miq_alert_status_state.comment,
-                                                      "username"          => miq_alert_status_state.user.name,
-                                                      "assignee_username" => miq_alert_status_state.assignee.name
-                                                    }
-                                                  ]}]}
+      expected_result_infra = {
+        "alert_statuses" => [{
+          "id"            => alert_status.id,
+          "node_hostname" => vm.name,
+          "severity"      => miq_alert.severity,
+          "description"   => miq_alert.description,
+          "states"        => [{
+            "id"                => miq_alert_status_state.id,
+            "created_at"        => miq_alert_status_state.created_at.utc.iso8601,
+            "updated_at"        => miq_alert_status_state.updated_at.utc.iso8601,
+            "user_id"           => user.id,
+            "assignee_id"       => user.id,
+            "action"            => "comment",
+            "comment"           => miq_alert_status_state.comment,
+            "username"          => miq_alert_status_state.user.name,
+            "assignee_username" => miq_alert_status_state.assignee.name
+          }
+        ]}]
+      }
       infra_provider.vms << vm
       vm.miq_alert_statuses << alert_status
       run_get("#{providers_url}?expand=resources,alert_statuses")

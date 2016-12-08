@@ -4825,7 +4825,7 @@ miq_alerts:
 - responds_to_events
 - enabled
 - read_only
-- link_text
+- html
 - severity
 miq_approvals:
 - id
