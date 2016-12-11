@@ -991,6 +991,8 @@
   :level_azure_in_evm: error
   :level_mw: info
   :level_mw_in_evm: error
+  :level_dw: info
+  :level_dw_in_evm: error
   :level_kube: info
   :level_kube_in_evm: error
   :level_api: info
