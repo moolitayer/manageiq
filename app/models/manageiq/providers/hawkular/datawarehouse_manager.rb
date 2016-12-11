@@ -46,10 +46,17 @@ module ManageIQ::Providers
     end
 
     def connect(options = {})
-      @client ||= self.class.raw_connect(hostname,
-                                         port,
-                                         authentication_token('default'),
-                                         options[:alerts])
+      @clients ||= {}
+      @clients[options[:alerts] ? :alerts : :metrics] ||= self.class.raw_connect(
+        hostname,
+        port,
+        authentication_token('default'),
+        options[:alerts]
+      )
+    end
+
+    def alerts_client
+      connect(:alerts => true)
     end
 
     def supports_port?
