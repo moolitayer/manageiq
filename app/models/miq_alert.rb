@@ -193,19 +193,29 @@ class MiqAlert < ApplicationRecord
     # If we are alerting, invoke the alert actions, then add a status so we can limit how often to alert
     # Otherwise, destroy this alert's statuses for our target
     invoke_actions(target, inputs) if result
-    add_status_post_evaluate(target, result, inputs[:description])
-
+    add_status_post_evaluate(target, result, inputs[:ems_event])
     result
   end
 
-  def add_status_post_evaluate(target, result, status_description)
+  def add_status_post_evaluate(target, result, event)
+    status_description, severity, url = parse_meta(event)
     status = miq_alert_statuses.find_or_initialize_by(:resource => target)
     status.result = result
     status.ems_id = target.try(:ems_id)
     status.description = status_description || description
+    status.severity = severity unless severity.blank?
+    status.url = url unless url.blank?
     status.evaluated_on = Time.now.utc
     status.save
     miq_alert_statuses << status
+  end
+
+  def parse_meta(event)
+    [
+      event.try(:message),
+      event.try(:fetch_path, :full_data, :severity),
+      event.try(:fetch_path, :full_data, :url),
+    ]
   end
 
   def invoke_actions(target, inputs = {})
