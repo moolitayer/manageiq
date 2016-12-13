@@ -23,8 +23,7 @@ class ManageIQ::Providers::Hawkular::DatawarehouseManager::EventCatcher::Runner 
   end
 
   def whitelist?(event)
-    tags = event.tags
-    tags && !tags[TAG_CLUSTER].nil?
+    true
   end
 
   def stop_event_monitor
