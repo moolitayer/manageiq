@@ -167,7 +167,7 @@ function alertsCenterService($http, $timeout, $interval, $document, $modal) {
     } else if (filter.id === 'type') {
       found = item.objectType === filter.value;
     } else if (filter.id === 'nodeName') {
-      found = filterStringCompare(item.node_hostname, filter.value);
+      found = filterStringCompare(item.resource_name, filter.value);
     } else if (filter.id === 'name') {
       found = filterStringCompare(item.objectName, filter.value);
     } else if (filter.id === 'assignee') {
@@ -214,7 +214,7 @@ function alertsCenterService($http, $timeout, $interval, $document, $modal) {
     } else if (sortId === 'severity') {
       compValue = item1.severityInfo.value - item2.severityInfo.value;
     } else if (sortId === 'nodeName') {
-      compValue = item1.node_hostname.localeCompare(item2.node_hostname);
+      compValue = item1.resource_name.localeCompare(item2.resource_name);
     } else if (sortId === 'name') {
       compValue = item1.objectName.localeCompare(item2.objectName);
     } else if (sortId === 'type') {
@@ -338,7 +338,7 @@ function alertsCenterService($http, $timeout, $interval, $document, $modal) {
       });
       _this.currentUser = _this.getUserByIdOrUserId(_this.currentUser.userid);
       // Get the alert data
-      $http.get(alertsURL + '?expand=resources,alert_statuses').success(onRefreshCB);
+      $http.get(alertsURL + '?expand=resources,alert_statuses,tags').success(onRefreshCB);
     });
   };
 
@@ -433,7 +433,7 @@ function alertsCenterService($http, $timeout, $interval, $document, $modal) {
     }
   }
 
-  function convertAlert (alertData, key, objectName, objectType, retrievalTime) {
+  function convertAlert (alertData, key, objectName, objectType, objectId, retrievalTime) {
     var path = '/assets/svg/';
     var suffix = '.svg';
     var prefix = '';
@@ -449,7 +449,8 @@ function alertsCenterService($http, $timeout, $interval, $document, $modal) {
 
     var newAlert = {
       id: alertData.id,
-      node_hostname: alertData.node_hostname,
+      resource_name: alertData.resource_name,
+      show_link: '/' +alertData.show_link,
       description: alertData.description,
       assigned: false,
       assignee: __("Unassigned"),
@@ -457,6 +458,7 @@ function alertsCenterService($http, $timeout, $interval, $document, $modal) {
       acknowledged: false,
       objectName: objectName,
       objectType: objectType,
+      objectId: objectId,
       objectTypeImg: typeImage,
       evaluated_on: convertApiTime(alertData.evaluated_on),
       severity: alertData.severity,
@@ -495,11 +497,9 @@ function alertsCenterService($http, $timeout, $interval, $document, $modal) {
         newTypes.push(objectType);
       }
 
-      angular.forEach(item.alert_statuses, function (nextStatus) {
         // Add the alerts for this object
-        angular.forEach(nextStatus.alerts, function (nextAlert) {
-          alerts.push(convertAlert(nextAlert, key, item.name, objectType, retrievalTime));
-        });
+      angular.forEach(item.alert_statuses, function (nextAlert) {
+          alerts.push(convertAlert(nextAlert, key, item.name, objectType, item.id, retrievalTime));
       });
     });
 
@@ -548,21 +548,29 @@ function alertsCenterService($http, $timeout, $interval, $document, $modal) {
       item.danger = [];
       item.warning = [];
       item.info = [];
-      angular.forEach(item.alert_statuses, function (nextStatus) {
         // Determine the categories for this object
         angular.forEach(_this.categories, function(nextCategory) {
-          item[nextCategory] = nextStatus[nextCategory];
+            if (angular.isDefined(item.tags)) {
+                angular.forEach(item.tags, function (tag) {
+                    var components = tag.name.toLowerCase().split('/');
+                    if (components.length == 4 && components[2] == nextCategory.toLowerCase()) {
+                        item[nextCategory] = item.alert_statuses;
+                        item['Environment'] = components[3];
+                    }
+                });
+            }
+
+
         });
 
         // Add the alerts for this object
-        angular.forEach(nextStatus.alerts, function (nextAlert) {
+        angular.forEach(item.alert_statuses, function (nextAlert) {
           // Default severity is info if severity is not an expected value
           if (angular.isUndefined(nextAlert.severity)) {
             nextAlert.severity = 'info';
           }
           item[nextAlert.severity].push(nextAlert);
         });
-      });
 
       alertData.push(item);
     });

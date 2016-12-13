@@ -28,7 +28,7 @@ angular.module('alertsCenter').controller('alertsOverviewController', ['$scope',
       vm.groups = [
         {
           value: '',
-          title: __("Ungrouped"),
+          title: 'Ungrouped',
           itemsList: [],
           open: true
         }

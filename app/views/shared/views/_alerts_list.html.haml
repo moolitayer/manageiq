@@ -17,10 +17,13 @@
             .col-md-6
               %span.no-wrap
                 %span.list-view-type-icon.pficon.pficon-screen
-                %span{"tooltip" => "{{item.node_hostname}}",
+                %span{"tooltip" => "{{item.resource_name}}",
                       "tooltip-placement" => "bottom",
                       "tooltip-popup-delay" => "1000"}
-                  {{item.node_hostname}}
+                  %a{"href" => "{{item.show_link}}", "style" => "color: black;" }
+                    {{item.resource_name}}
+
+
             .col-md-6
               %span.no-wrap
                 %img.list-view-type-img{"ng-src" => "{{item.objectTypeImg}}",
@@ -31,7 +34,8 @@
                 %span{"tooltip" => "{{item.objectName}}",
                       "tooltip-placement" => "bottom",
                       "tooltip-popup-delay" => "1000"}
-                  {{item.objectName}}
+                  %a{"href" => "/ems_container/{{item.objectId}}", "style" => "color: black;" }
+                    {{item.objectName}}
         .col-md-4.col-sm-3.col-xs-6
           %span.no-wrap{"tooltip" => "{{item.description}}",
                         "tooltip-placement" => "bottom",
