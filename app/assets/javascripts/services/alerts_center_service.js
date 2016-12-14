@@ -554,8 +554,21 @@ function alertsCenterService($http, $timeout, $interval, $document, $modal) {
                 angular.forEach(item.tags, function (tag) {
                     var components = tag.name.toLowerCase().split('/');
                     if (components.length == 4 && components[2] == nextCategory.toLowerCase()) {
-                        item[nextCategory] = item.alert_statuses;
-                        item['Environment'] = components[3];
+                        var env = 'Production'
+                        if (components[3] == 'quar') {
+                            env = 'Quarantine'
+                        }
+                        if (components[3] == 'test') {
+                            env = 'Test'
+                        }
+                        if (components[3] == 'dev') {
+                            env = 'Development'
+                        }
+                        if (components[3] == 'qa') {
+                            env = 'QA'
+                        }
+
+                        item['Environment'] = env;
                     }
                 });
             }
