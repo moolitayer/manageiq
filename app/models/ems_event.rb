@@ -178,7 +178,13 @@ class EmsEvent < EventStream
       event_type == "datawarehouse_alert" ? message : nil,
       full_data.try(:[], :severity),
       full_data.try(:[], :url),
+      full_data.try(:[], :ems_ref),
+      full_data.try(:[], :resolved),
     ]
+  end
+
+  def always_evaluate_alerts?
+    event_type == "datawarehouse_alert"
   end
 
   def first_chained_event

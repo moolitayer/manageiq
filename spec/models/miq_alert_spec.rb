@@ -472,4 +472,10 @@ describe MiqAlert do
       msg.delivered(status, message, result)
     end
   end
+
+  describe 'CM-OPS WORKFLOW' do
+    context '' do
+
+    end
+  end
 end

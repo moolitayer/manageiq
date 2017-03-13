@@ -109,7 +109,7 @@ class MiqAlert < ApplicationRecord
     _log.info("#{log_header} #{log_target}")
 
     assigned_to_target(target, event).each do |a|
-      next if a.postpone_evaluation?(target)
+      next if a.postpone_evaluation?(target, inputs[:ems_event])
       _log.info("#{log_header} #{log_target} Queuing evaluation of Alert: [#{a.description}]")
       a.evaluate_queue(target, inputs)
     end
@@ -158,8 +158,8 @@ class MiqAlert < ApplicationRecord
     end
   end
 
-  def postpone_evaluation?(target)
-    # TODO: Are there some alerts that we always want to evaluate?
+  def postpone_evaluation?(target, event)
+    return false if event.try(:always_evaluate_alerts?)
 
     # If a miq alert status exists for our resource and alert, and it has not been delay_next_evaluation seconds since
     # it was evaluated, return true so we can skip evaluation
@@ -184,7 +184,7 @@ class MiqAlert < ApplicationRecord
       raise "Unable to find object with class: [#{klass}], Id: [#{id}]" unless target
     end
 
-    return if self.postpone_evaluation?(target)
+    return if self.postpone_evaluation?(target, inputs[:ems_event])
 
     _log.info("Evaluating Alert [#{description}] for target: [#{target.name}]...")
     result = eval_expression(target, inputs)
@@ -198,16 +198,27 @@ class MiqAlert < ApplicationRecord
   end
 
   def add_status_post_evaluate(target, result, event)
-    status_description, severity, url = event.parse_event_metadata if event.respond_to?(:parse_event_metadata)
-    status = miq_alert_statuses.find_or_initialize_by(:resource => target)
+    status_description, severity, url, ems_ref, resolved = event.try(:parse_event_metadata)
+    status = find_status(target, event, ems_ref)
+
     status.result = result
     status.ems_id = target.try(:ems_id)
     status.description = status_description || description
     status.severity = severity unless severity.blank?
     status.url = url unless url.blank?
+    status.ems_ref = ems_ref unless ems_ref.blank?
+    status.resolved = resolved
     status.evaluated_on = Time.now.utc
     status.save
     miq_alert_statuses << status
+  end
+
+  def find_status(target, event, ems_ref)
+    if event.event_type == "datawarehouse_alert"
+      miq_alert_statuses.find_or_initialize_by(:resource => target, :ems_ref => ems_ref)
+    else
+      miq_alert_statuses.find_or_initialize_by(:resource => target)
+    end
   end
 
   def invoke_actions(target, inputs = {})

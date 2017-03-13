@@ -4862,6 +4862,8 @@ miq_alert_statuses:
 - acknowledged
 - ems_id
 - description
+- resolved
+- ems_ref
 miq_alerts:
 - id
 - guid
